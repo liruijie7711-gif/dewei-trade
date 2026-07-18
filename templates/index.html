@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col lg:flex-row gap-6">
+    <!-- LEFT: Input Panel -->
+    <div class="flex-1 space-y-5">
+        <div class="card p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Shipping Calculator</h2>
+
+            <!-- Country -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">Destination Country</label>
+                <select id="country" class="input-field">
+                    <option value="">-- Select country --</option>
+                </select>
+            </div>
+
+            <!-- Product Model -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">Product Model</label>
+                <select id="model" class="input-field" onchange="onModelChange()">
+                    <option value="42cm">42cm 3D Fan</option>
+                    <option value="52cm">52cm 3D Fan</option>
+                    <option value="65cm">65cm 3D Fan</option>
+                    <option value="100cm">100cm 3D Fan</option>
+                </select>
+            </div>
+
+            <!-- Custom dimensions -->
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Length (cm)</label>
+                    <input type="number" id="dimL" class="input-field" step="0.1" placeholder="50.5" oninput="calcVolWeight()">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Width (cm)</label>
+                    <input type="number" id="dimW" class="input-field" step="0.1" placeholder="50.5" oninput="calcVolWeight()">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Height (cm)</label>
+                    <input type="number" id="dimH" class="input-field" step="0.1" placeholder="11.5" oninput="calcVolWeight()">
+                </div>
+            </div>
+
+            <!-- Weight + Vol divisor -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Actual Weight (kg)</label>
+                    <input type="number" id="weight" class="input-field" step="0.1" value="3.0">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Vol. Divisor</label>
+                    <select id="volDivisor" class="input-field" onchange="calcVolWeight()">
+                        <option value="5000">÷5000 (Air/Express)</option>
+                        <option value="6000">÷6000 (Economy/Sea)</option>
+                    </select>
+                </div>
+            </div>
+            <div id="volWeightInfo" class="text-xs text-gray-400 mb-4">Volume weight: — kg | Chargeable: — kg</div>
+
+            <!-- Price -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Product Price (USD)</label>
+                    <input type="number" id="priceUsd" class="input-field" step="0.01" value="175" placeholder="175">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Cost Price (CNY, optional)</label>
+                    <input type="number" id="costCny" class="input-field" step="0.01" placeholder="650">
+                </div>
+            </div>
+
+            <!-- Shipping Mode -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">Shipping Mode</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="mode" value="DDP" checked onchange="onModeChange()" class="accent-brand-500">
+                        <span class="text-sm">DDP (All-inclusive)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="mode" value="DDU" onchange="onModeChange()" class="accent-brand-500">
+                        <span class="text-sm">DDU (Customer pays tax)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Customer Name -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">Customer Name (optional)</label>
+                <input type="text" id="customerName" class="input-field" placeholder="e.g. John from Amsterdam">
+            </div>
+
+            <button onclick="calculate()" class="btn-primary w-full text-base py-3" id="calcBtn">Calculate</button>
+        </div>
+    </div>
+
+    <!-- RIGHT: Results Panel -->
+    <div class="flex-1 space-y-5" id="resultsPanel" style="display:none;">
+        <!-- Summary -->
+        <div class="card p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Results</h2>
+            <div class="grid grid-cols-2 gap-4" id="resultsGrid"></div>
+        </div>
+
+        <!-- English Quote -->
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-semibold text-gray-900">Client Quote</h2>
+                <button onclick="copyQuote()" class="btn-outline text-sm py-1.5 px-3">Copy</button>
+            </div>
+            <div class="quote-box" id="quoteBox"></div>
+        </div>
+
+        <!-- Save -->
+        <button onclick="saveQuote()" class="btn-outline w-full" id="saveBtn" disabled>Save Quote</button>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div id="historyModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:100;" onclick="closeHistory(event)">
+    <div class="card" style="max-width:600px; margin:80px auto; max-height:70vh; overflow-y:auto;" onclick="event.stopPropagation()">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold">Quote History</h2>
+                <button onclick="document.getElementById('historyModal').style.display='none'" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            </div>
+            <div id="historyList"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

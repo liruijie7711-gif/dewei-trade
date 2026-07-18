@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RJ Trade Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#f0f4ff', 100: '#dbe4ff', 200: '#bac8ff', 500: '#3b5de7', 600: '#2a4bd7', 700: '#1e3ab5' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: #f8f9fb; }
+        .card { background: #fff; border-radius: 12px; border: 1px solid #e8ecf1; }
+        .btn-primary { background: #3b5de7; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+        .btn-primary:hover { background: #2a4bd7; }
+        .btn-outline { background: #fff; color: #3b5de7; border: 1px solid #d0d5dd; border-radius: 8px; padding: 10px 20px; font-weight: 500; cursor: pointer; }
+        .btn-outline:hover { background: #f0f4ff; }
+        .input-field { width: 100%; padding: 10px 14px; border: 1px solid #d0d5dd; border-radius: 8px; font-size: 14px; transition: border-color 0.15s; outline: none; }
+        .input-field:focus { border-color: #3b5de7; box-shadow: 0 0 0 3px rgba(59,93,231,0.1); }
+        select.input-field { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23666'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+        .result-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+        .badge-green { background: #ecfdf3; color: #067647; }
+        .badge-blue { background: #eff6ff; color: #1e40af; }
+        .badge-amber { background: #fffbeb; color: #92400e; }
+        .nav-link { padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #475467; transition: all 0.15s; text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: #eff6ff; color: #3b5de7; }
+        .toast { position: fixed; bottom: 24px; right: 24px; background: #1d2939; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; z-index: 9999; opacity: 0; transform: translateY(20px); transition: all 0.3s; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .quote-box { background: #f8f9fb; border: 1px solid #e8ecf1; border-radius: 10px; padding: 16px; font-family: 'SF Mono', 'Menlo', monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap; }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-xl font-bold text-brand-700">RJ</span>
+                <span class="text-sm font-medium text-gray-600 hidden sm:inline">Trade Assistant</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <a href="/" class="nav-link active" id="nav-calc">Calculator</a>
+                <a href="#" class="nav-link" id="nav-history" onclick="loadQuotes()">History</a>
+                <a href="/logout" class="nav-link text-red-500 hover:bg-red-50">Logout</a>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+    <div class="toast" id="toast"></div>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
