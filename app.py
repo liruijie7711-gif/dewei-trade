@@ -134,10 +134,6 @@ Estimated VAT: ~${tax_amount}"""
 
 @app.route('/')
 def index():
-    # Auto-refresh rates once per day on first visit
-    last = ExchangeRate.query.first()
-    if not last or (datetime.now(timezone.utc) - last.updated_at.replace(tzinfo=timezone.utc)).days >= 1:
-        _refresh_rates()
     return render_template('index.html')
 
 @app.route('/api/countries')
