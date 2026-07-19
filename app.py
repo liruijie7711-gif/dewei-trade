@@ -278,17 +278,19 @@ import urllib.request, json as _json
 def api_refresh():
     """Refresh exchange rates from free API. Ping daily via cron-job.org."""
 def _refresh_rates():
-    """Refresh exchange rates from free API."""
+    """Refresh exchange rates from free API. Returns (ok, dict_or_error)."""
     try:
         url = "https://open.er-api.com/v6/latest/USD"
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = _json.loads(resp.read())
-            rates = data.get("rates", {})
+            r = data.get("rates", {})
+            eur = r.get("EUR", 0.92)
+            cny = r.get("CNY", 7.25)
             pairs = {
-                "USD/CNY": rates.get("CNY", 7.25),
-                "EUR/USD": 1 / rates.get("EUR", 1.09) if rates.get("EUR") else 1.09,
-                "EUR/CNY": rates.get("CNY", 7.25) / rates.get("EUR", 1.09) if rates.get("EUR") else 7.90,
+                "USD/CNY": cny,
+                "EUR/USD": round(1/eur, 4) if eur else 1.09,
+                "EUR/CNY": round(cny/eur, 4) if eur else 7.90,
             }
             for pair, rate in pairs.items():
                 er = ExchangeRate.query.filter_by(currency_pair=pair).first()
@@ -298,9 +300,9 @@ def _refresh_rates():
                 else:
                     db.session.add(ExchangeRate(currency_pair=pair, rate=round(rate, 4)))
             db.session.commit()
-            return jsonify({"success": True, "rates": pairs, "updated": datetime.now(timezone.utc).isoformat()})
+            return True, pairs
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        return False, str(e)
 
 @app.errorhandler(404)
 def nf(e): return jsonify({"error":"Not found"}),404
