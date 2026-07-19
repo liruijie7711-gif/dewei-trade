@@ -266,40 +266,6 @@ def api_get_quote(qid):
 
 
 # ============================================================
-# Daily refresh endpoint — pinged by cron-job.org
-# ============================================================
-import urllib.request, json as _json
-
-@app.route('/api/refresh')
-def api_refresh():
-    """Refresh exchange rates from free API. Ping daily via cron-job.org."""
-def _refresh_rates():
-    """Refresh exchange rates from free API. Returns (ok, dict_or_error)."""
-    try:
-        url = "https://open.er-api.com/v6/latest/USD"
-        req = urllib.request.Request(url)
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = _json.loads(resp.read())
-            r = data.get("rates", {})
-            eur = r.get("EUR", 0.92)
-            cny = r.get("CNY", 7.25)
-            pairs = {
-                "USD/CNY": cny,
-                "EUR/USD": round(1/eur, 4) if eur else 1.09,
-                "EUR/CNY": round(cny/eur, 4) if eur else 7.90,
-            }
-            for pair, rate in pairs.items():
-                er = ExchangeRate.query.filter_by(currency_pair=pair).first()
-                if er:
-                    er.rate = round(rate, 4)
-                    er.updated_at = datetime.now(timezone.utc)
-                else:
-                    db.session.add(ExchangeRate(currency_pair=pair, rate=round(rate, 4)))
-            db.session.commit()
-            return True, pairs
-    except Exception as e:
-        return False, str(e)
-
 @app.errorhandler(404)
 def nf(e): return jsonify({"error":"Not found"}),404
 
