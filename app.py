@@ -264,6 +264,38 @@ def api_get_quote(qid):
         "profit":q.profit,"cost_price_cny":q.cost_price_cny,"notes":q.notes,
         "created_at":q.created_at.isoformat() if q.created_at else None})
 
+
+# ============================================================
+# Daily refresh endpoint — pinged by cron-job.org
+# ============================================================
+import urllib.request, json as _json
+
+@app.route('/api/refresh')
+def api_refresh():
+    """Refresh exchange rates from free API. Ping daily via cron-job.org."""
+    try:
+        url = "https://open.er-api.com/v6/latest/USD"
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = _json.loads(resp.read())
+            rates = data.get("rates", {})
+            pairs = {
+                "USD/CNY": rates.get("CNY", 7.25),
+                "EUR/USD": 1 / rates.get("EUR", 1.09) if rates.get("EUR") else 1.09,
+                "EUR/CNY": rates.get("CNY", 7.25) / rates.get("EUR", 1.09) if rates.get("EUR") else 7.90,
+            }
+            for pair, rate in pairs.items():
+                er = ExchangeRate.query.filter_by(currency_pair=pair).first()
+                if er:
+                    er.rate = round(rate, 4)
+                    er.updated_at = datetime.now(timezone.utc)
+                else:
+                    db.session.add(ExchangeRate(currency_pair=pair, rate=round(rate, 4)))
+            db.session.commit()
+            return jsonify({"success": True, "rates": pairs, "updated": datetime.now(timezone.utc).isoformat()})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.errorhandler(404)
 def nf(e): return jsonify({"error":"Not found"}),404
 
