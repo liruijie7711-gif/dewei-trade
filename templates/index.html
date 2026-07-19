@@ -4,128 +4,72 @@
     <!-- LEFT: Input Panel -->
     <div class="flex-1 space-y-5">
         <div class="card p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Shipping Calculator</h2>
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">运费计算器</h2>
 
-            <!-- Country -->
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">Destination Country</label>
-                <select id="country" class="input-field">
-                    <option value="">-- Select country --</option>
-                </select>
+            <!-- Country Search -->
+            <div class="mb-4 relative">
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">目的国家（搜索）</label>
+                <input type="text" id="countrySearch" class="input-field" placeholder="输入国家名称搜索..." autocomplete="off" oninput="filterCountries()" onfocus="showCountryList()">
+                <input type="hidden" id="country" value="">
+                <div id="countryList" class="absolute z-50 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg hidden"></div>
             </div>
 
-            <!-- Product Model -->
+            <!-- Product Name -->
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">Product Model</label>
-                <select id="model" class="input-field" onchange="onModelChange()">
-                    <option value="42cm">42cm 3D Fan</option>
-                    <option value="52cm">52cm 3D Fan</option>
-                    <option value="65cm">65cm 3D Fan</option>
-                    <option value="100cm">100cm 3D Fan</option>
-                </select>
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">产品名称</label>
+                <input type="text" id="productName" class="input-field" placeholder="例如：42cm 3D Fan Display" value="3D Fan Display">
             </div>
+
+
 
             <!-- Custom dimensions -->
             <div class="grid grid-cols-3 gap-3 mb-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Length (cm)</label>
-                    <input type="number" id="dimL" class="input-field" step="0.1" placeholder="50.5" oninput="calcVolWeight()">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Width (cm)</label>
-                    <input type="number" id="dimW" class="input-field" step="0.1" placeholder="50.5" oninput="calcVolWeight()">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Height (cm)</label>
-                    <input type="number" id="dimH" class="input-field" step="0.1" placeholder="11.5" oninput="calcVolWeight()">
-                </div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1.5">长 (cm)</label><input type="number" id="dimL" class="input-field" step="0.1" placeholder="50.5" oninput="calcVolWeight()"></div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1.5">宽 (cm)</label><input type="number" id="dimW" class="input-field" step="0.1" placeholder="50.5" oninput="calcVolWeight()"></div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1.5">高 (cm)</label><input type="number" id="dimH" class="input-field" step="0.1" placeholder="11.5" oninput="calcVolWeight()"></div>
             </div>
 
-            <!-- Weight + Vol divisor -->
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Actual Weight (kg)</label>
-                    <input type="number" id="weight" class="input-field" step="0.1" value="3.0">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Vol. Divisor</label>
-                    <select id="volDivisor" class="input-field" onchange="calcVolWeight()">
-                        <option value="5000">÷5000 (Air/Express)</option>
-                        <option value="6000">÷6000 (Economy/Sea)</option>
-                    </select>
-                </div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1.5">实际重量 (kg)</label><input type="number" id="weight" class="input-field" step="0.1" value="3.0" oninput="calcVolWeight()"></div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1.5">体积除数</label><select id="volDivisor" class="input-field" onchange="calcVolWeight()"><option value="5000">÷5000（空运/快递）</option><option value="6000">÷6000（专线/海运）</option></select></div>
             </div>
-            <div id="volWeightInfo" class="text-xs text-gray-400 mb-4">Volume weight: — kg | Chargeable: — kg</div>
+            <div id="volWeightInfo" class="text-xs text-gray-400 mb-4">体积重：— kg | 计费重：— kg</div>
 
             <!-- Price -->
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Product Price (USD)</label>
-                    <input type="number" id="priceUsd" class="input-field" step="0.01" value="175" placeholder="175">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1.5">Cost Price (CNY, optional)</label>
-                    <input type="number" id="costCny" class="input-field" step="0.01" placeholder="650">
-                </div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1.5">产品售价 (USD)</label><input type="number" id="priceUsd" class="input-field" step="0.01" value="175"></div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1.5">成本价 (CNY，选填)</label><input type="number" id="costCny" class="input-field" step="0.01" placeholder="650"></div>
             </div>
 
             <!-- Shipping Mode -->
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">Shipping Mode</label>
-                <div class="flex gap-4">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="mode" value="DDP" checked onchange="onModeChange()" class="accent-brand-500">
-                        <span class="text-sm">DDP (All-inclusive)</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="mode" value="DDU" onchange="onModeChange()" class="accent-brand-500">
-                        <span class="text-sm">DDU (Customer pays tax)</span>
-                    </label>
-                </div>
+            <div class="mb-3"><label class="block text-sm font-medium text-gray-600 mb-1.5">运输模式</label>
+                <div class="flex gap-4"><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="mode" value="DDP" checked class="accent-brand-500"><span class="text-sm">DDP（全包）</span></label><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="mode" value="DDU" class="accent-brand-500"><span class="text-sm">DDU（客户付税）</span></label></div>
             </div>
 
-            <!-- Customer Name -->
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">Customer Name (optional)</label>
-                <input type="text" id="customerName" class="input-field" placeholder="e.g. John from Amsterdam">
+            <!-- Shipping Method -->
+            <div class="mb-4"><label class="block text-sm font-medium text-gray-600 mb-1.5">运输方式</label>
+                <div class="flex gap-4"><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="method" value="air" checked onchange="calculate()" class="accent-brand-500"><span class="text-sm">✈️ 空运</span></label><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="method" value="rail" onchange="calculate()" class="accent-brand-500"><span class="text-sm">🚂 铁路</span></label><label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="method" value="sea" onchange="calculate()" class="accent-brand-500"><span class="text-sm">🚢 海运</span></label></div>
             </div>
 
-            <button onclick="calculate()" class="btn-primary w-full text-base py-3" id="calcBtn">Calculate</button>
+            <!-- Postal Code -->
+            <div class="mb-4"><label class="block text-sm font-medium text-gray-600 mb-1.5">邮编 / 地址（选填）</label><input type="text" id="postalCode" class="input-field" placeholder="例如：3811 JH Amersfoort"></div>
+            <div class="mb-4"><label class="block text-sm font-medium text-gray-600 mb-1.5">客户名称（选填）</label><input type="text" id="customerName" class="input-field" placeholder="例如：John"></div>
+
+            <button onclick="calculate()" class="btn-primary w-full text-base py-3" id="calcBtn">开始计算</button>
         </div>
     </div>
 
-    <!-- RIGHT: Results Panel -->
+    <!-- RIGHT: Results -->
     <div class="flex-1 space-y-5" id="resultsPanel" style="display:none;">
-        <!-- Summary -->
-        <div class="card p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Results</h2>
-            <div class="grid grid-cols-2 gap-4" id="resultsGrid"></div>
-        </div>
-
-        <!-- English Quote -->
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-3">
-                <h2 class="text-lg font-semibold text-gray-900">Client Quote</h2>
-                <button onclick="copyQuote()" class="btn-outline text-sm py-1.5 px-3">Copy</button>
-            </div>
-            <div class="quote-box" id="quoteBox"></div>
-        </div>
-
-        <!-- Save -->
-        <button onclick="saveQuote()" class="btn-outline w-full" id="saveBtn" disabled>Save Quote</button>
+        <div class="card p-6"><h2 class="text-lg font-semibold text-gray-900 mb-4">计算结果</h2><div class="grid grid-cols-2 gap-4" id="resultsGrid"></div></div>
+        <div class="card p-6"><div class="flex items-center justify-between mb-3"><h2 class="text-lg font-semibold text-gray-900">客户报价（英文）</h2><button onclick="copyQuote()" class="btn-outline text-sm py-1.5 px-3">复制</button></div><div class="quote-box" id="quoteBox"></div></div>
+        <button onclick="saveQuote()" class="btn-outline w-full" id="saveBtn" disabled>保存报价记录</button>
     </div>
 </div>
 
-<!-- History Modal -->
 <div id="historyModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:100;" onclick="closeHistory(event)">
     <div class="card" style="max-width:600px; margin:80px auto; max-height:70vh; overflow-y:auto;" onclick="event.stopPropagation()">
-        <div class="p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold">Quote History</h2>
-                <button onclick="document.getElementById('historyModal').style.display='none'" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-            </div>
-            <div id="historyList"></div>
-        </div>
+        <div class="p-6"><div class="flex items-center justify-between mb-4"><h2 class="text-lg font-semibold">报价历史</h2><button onclick="document.getElementById('historyModal').style.display='none'" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button></div><div id="historyList"></div></div>
     </div>
 </div>
 {% endblock %}
