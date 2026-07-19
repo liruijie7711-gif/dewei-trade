@@ -134,6 +134,10 @@ Estimated VAT: ~${tax_amount}"""
 
 @app.route('/')
 def index():
+    # Auto-refresh rates once per day on first visit
+    last = ExchangeRate.query.first()
+    if not last or (datetime.now(timezone.utc) - last.updated_at.replace(tzinfo=timezone.utc)).days >= 1:
+        _refresh_rates()
     return render_template('index.html')
 
 @app.route('/api/countries')
@@ -273,6 +277,8 @@ import urllib.request, json as _json
 @app.route('/api/refresh')
 def api_refresh():
     """Refresh exchange rates from free API. Ping daily via cron-job.org."""
+def _refresh_rates():
+    """Refresh exchange rates from free API."""
     try:
         url = "https://open.er-api.com/v6/latest/USD"
         req = urllib.request.Request(url)
