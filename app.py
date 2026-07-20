@@ -228,7 +228,13 @@ def api_calculate():
         "profit": profit,
         "profit_pct": profit_pct,
         "quote_text": quote_text,
-        "providers": [],  # get_provider_comparison(country["region"], chargeable, method, mode),
+        "providers": [
+            {"id":"cainiao","name":"菜鸟国际","name_en":"Cainiao","estimate":round(chargeable*5.5+15),"range":"$5.5-8.0/kg","transit":"5-10","notes":"速卖通官方"},
+            {"id":"yunexpress","name":"云途物流","name_en":"YunExpress","estimate":round(chargeable*4.5+15),"range":"$4.5-6.5/kg","transit":"6-10","notes":"小包专精"},
+            {"id":"yanwen","name":"燕文物流","name_en":"Yanwen","estimate":round(chargeable*3.5+15),"range":"$3.5-5.0/kg","transit":"8-14","notes":"行业最低价"},
+            {"id":"4px","name":"递四方","name_en":"4PX","estimate":round(chargeable*5.0+15),"range":"$5.0-7.5/kg","transit":"5-12","notes":"一站式"},
+            {"id":"sunyou","name":"顺友物流","name_en":"SunYou","estimate":round(chargeable*4.0+15),"range":"$4.0-6.0/kg","transit":"7-12","notes":"老牌稳定"},
+        ],
         "remote_surcharge": remote_fee,
         "remote_label": remote_label,
         "summary": {
