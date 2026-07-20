@@ -228,7 +228,7 @@ def api_calculate():
         "profit": profit,
         "profit_pct": profit_pct,
         "quote_text": quote_text,
-        "providers": get_provider_comparison(country["region"], chargeable, method, mode),
+        "providers": [],  # get_provider_comparison(country["region"], chargeable, method, mode),
         "remote_surcharge": remote_fee,
         "remote_label": remote_label,
         "summary": {
