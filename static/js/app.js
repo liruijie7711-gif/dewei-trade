@@ -99,6 +99,7 @@ function renderResults(d) {
     if (d.profit !== null) items.push({ label: '预估利润', value: `$${d.profit}（${d.profit_pct}%）`, badge: d.profit > 0 ? 'badge-green' : 'badge-amber' });
     grid.innerHTML = items.map(i => `<div class="p-3 rounded-lg bg-gray-50"><div class="text-xs text-gray-500 mb-1">${i.label}</div><div class="text-lg font-semibold">${i.badge ? `<span class="result-badge ${i.badge}">${i.value}</span>` : i.value}</div></div>`).join('');
     document.getElementById('quoteBox').textContent = d.quote_text;
+    renderProviders(d.providers || [], d.shipping_cost);
 }
 
 function copyQuote() { if(quoteData) navigator.clipboard.writeText(quoteData.quote_text).then(()=>showToast('已复制！')).catch(()=>showToast('复制失败')); }
@@ -148,3 +149,23 @@ async function viewQuote(id) {
 
 function closeHistory(e) { if(e.target===document.getElementById('historyModal')) document.getElementById('historyModal').style.display='none'; }
 function showToast(m) { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+
+function renderProviders(providers, deweiCost) {
+    const container = document.getElementById('providerTable');
+    if (!container || !providers.length) { if(container) container.style.display='none'; return; }
+    container.style.display = '';
+    let html = '<div class="text-xs text-gray-400 mb-2">各物流平台预估对比（DDP空运）</div>';
+    html += '<table class="w-full text-xs"><thead><tr class="text-gray-500 border-b"><th class="text-left py-1.5">平台</th><th class="text-right py-1.5">单价</th><th class="text-right py-1.5">预估运费</th><th class="text-right py-1.5">时效</th></tr></thead><tbody>';
+    
+    // Dewei row first
+    html += `<tr class="border-b border-blue-100 bg-blue-50"><td class="py-1.5 font-medium">★ Dewei (本系统)</td><td class="text-right">—</td><td class="text-right font-semibold text-blue-700">$${deweiCost}</td><td class="text-right">—</td></tr>`;
+    
+    providers.forEach(p => {
+        const cls = p.estimate < deweiCost ? 'text-green-700' : 'text-gray-700';
+        html += `<tr class="border-b border-gray-100"><td class="py-1.5">${p.name}<div class="text-gray-400" style="font-size:10px">${p.notes}</div></td><td class="text-right text-gray-500">${p.rate_range}</td><td class="text-right font-medium ${cls}">$${p.estimate}</td><td class="text-right text-gray-500">${p.transit}天</td></tr>`;
+    });
+    
+    html += '</tbody></table>';
+    html += '<div class="text-gray-400 mt-1" style="font-size:10px">以上为公开参考价，实际签约价可能更低。建议登录各平台后台获取实时报价。</div>';
+    container.innerHTML = html;
+}
