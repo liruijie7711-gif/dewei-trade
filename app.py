@@ -36,11 +36,13 @@ class QuoteRecord(db.Model):
 with open('data/countries.json', 'r', encoding='utf-8') as f:
     COUNTRIES = json.load(f)
 
-try:
-    with open('data/providers.json', 'r', encoding='utf-8') as f:
-        PROVIDERS = json.load(f)
-except Exception:
-    PROVIDERS = {}
+PROVIDERS = {
+    "cainiao": {"name":"菜鸟国际","name_en":"Cainiao","rates":{"欧洲":(5.5,8.0),"北美":(6.5,9.0),"中东":(5.0,7.0),"亚洲":(3.0,5.0),"大洋洲":(5.0,7.0),"南美":(7.0,10.0),"非洲":(8.0,12.0)},"transit":{"air":"5-10","rail":"15-20","sea":"30-45"},"notes":"速卖通官方物流，欧洲5美元10日达"},
+    "yunexpress": {"name":"云途物流","name_en":"YunExpress","rates":{"欧洲":(4.5,6.5),"北美":(5.0,7.0),"中东":(4.5,6.5),"亚洲":(3.0,4.5),"大洋洲":(4.5,6.0),"南美":(6.5,9.0),"非洲":(7.0,10.0)},"transit":{"air":"6-10","rail":"16-22","sea":"28-40"},"notes":"小包专精，带电渠道成熟"},
+    "yanwen": {"name":"燕文物流","name_en":"Yanwen","rates":{"欧洲":(3.5,5.0),"北美":(4.0,6.0),"中东":(3.5,5.5),"亚洲":(2.5,4.0),"大洋洲":(3.5,5.0),"南美":(5.5,8.0),"非洲":(6.5,9.5)},"transit":{"air":"8-14","rail":"-","sea":"30-40"},"notes":"行业最低价，适合2kg以下轻小件"},
+    "4px": {"name":"递四方","name_en":"4PX","rates":{"欧洲":(5.0,7.5),"北美":(6.0,8.5),"中东":(5.0,7.5),"亚洲":(3.5,5.5),"大洋洲":(5.0,7.0),"南美":(7.5,11.0),"非洲":(8.0,12.0)},"transit":{"air":"5-12","rail":"15-22","sea":"25-35"},"notes":"一站式服务，海外仓+FBA头程"},
+    "sunyou": {"name":"顺友物流","name_en":"SunYou","rates":{"欧洲":(4.0,6.0),"北美":(4.5,6.5),"中东":(4.0,6.0),"亚洲":(3.0,5.0),"大洋洲":(4.5,6.0),"南美":(6.0,8.5),"非洲":(7.0,10.0)},"transit":{"air":"7-12","rail":"-","sea":"28-38"},"notes":"老牌稳定，速卖通/Wish友好"},
+}
 
 # Country lookup
 COUNTRY_MAP = {c["cc"]: c for c in COUNTRIES}
