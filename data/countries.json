@@ -1378,5 +1378,20 @@
     "air_d": "10-18",
     "rail_d": "-",
     "sea_d": "28-45"
+  },
+  {
+    "cc": "KZ",
+    "en": "Kazakhstan",
+    "cn": "哈萨克斯坦",
+    "region": "亚洲",
+    "vat": 0.12,
+    "air_ddp": 5.0,
+    "air_ddu": 3.2,
+    "rail_ddp": 4.0,
+    "rail_ddu": 2.5,
+    "sea_cbm": 80,
+    "air_d": "5-8",
+    "rail_d": "10-15",
+    "sea_d": "15-25"
   }
 ]
