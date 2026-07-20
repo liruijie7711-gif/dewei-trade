@@ -36,8 +36,11 @@ class QuoteRecord(db.Model):
 with open('data/countries.json', 'r', encoding='utf-8') as f:
     COUNTRIES = json.load(f)
 
-with open('data/providers.json', 'r', encoding='utf-8') as f:
-    PROVIDERS = json.load(f)
+try:
+    with open('data/providers.json', 'r', encoding='utf-8') as f:
+        PROVIDERS = json.load(f)
+except Exception:
+    PROVIDERS = {}
 
 # Country lookup
 COUNTRY_MAP = {c["cc"]: c for c in COUNTRIES}
